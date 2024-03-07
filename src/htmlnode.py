@@ -1,16 +1,21 @@
 
 from typing import List, Dict
 class HTMLNode:
-    def __init__(self, tag=None, value=None, children=None, props=None):
-        self.tag = tag # string representing the HTML tag name (e.g. "p", "a", "h1", etc.)
-        self.value = value # string representing the value of the HTML tag (e.g. the text inside a paragraph)
+    def __init__(self,
+                 tag: str=None,
+                 value: str=None,
+                 children: List['HTMLNode']=None,
+                 props: Dict[str, str]=None
+        ) -> None:
+        self.tag = tag # the HTML tag name (e.g. "p", "a", "h1", etc.)
+        self.value = value # the value of the HTML tag (e.g. the text inside a paragraph)
         self.children = children # list of HTMLNode objects representing the children of this node
         self.props = props # dictionary of key-value pairs representing the attributes of the HTML tag
 
-    def to_html(self):
+    def to_html(self) -> None:
         raise NotImplementedError()
     
-    def props_to_html(self):
+    def props_to_html(self) -> str:
         if self.props == None:
             return
         res = ""
@@ -18,5 +23,34 @@ class HTMLNode:
             res += f' {key}="{value}"'
         return res
     
-    def __repr__(self):
-        return f' tag:{self.tag}\n value:{self.value}\n children:{self.children}\n props:{self.props}'
+    def __eq__(self, other):
+        return self.tag == other.tag \
+            and self.value == other.value \
+            and self.children == other.children \
+            and self.props == other.props
+    
+    def __repr__(self) -> str:
+        return f'\n tag:{self.tag}\n value:{self.value}\n children:{self.children}\n props:{self.props}\n'
+
+class LeafNode(HTMLNode):
+    def __init__(self,
+                tag: str,
+                value: str,
+                props: Dict[str, str]=None
+        ) -> None:
+        super().__init__(tag, value, None, props)
+
+    def to_html(self):
+        if not self.value:
+            raise ValueError("Leafnode's value not set")
+    
+        if not self.tag:
+            return self.value
+        
+        res = "<" + self.tag
+        if self.props:
+            res += self.props_to_html()
+        res += ">"
+        res += self.value
+        res += '</' + self.tag + '>'
+        return res
