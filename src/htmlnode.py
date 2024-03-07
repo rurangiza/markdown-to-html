@@ -1,5 +1,5 @@
-
 from typing import List, Dict
+
 class HTMLNode:
     def __init__(self,
                  tag: str=None,
@@ -7,10 +7,14 @@ class HTMLNode:
                  children: List['HTMLNode']=None,
                  props: Dict[str, str]=None
         ) -> None:
-        self.tag = tag # the HTML tag name (e.g. "p", "a", "h1", etc.)
-        self.value = value # the value of the HTML tag (e.g. the text inside a paragraph)
-        self.children = children # list of HTMLNode objects representing the children of this node
-        self.props = props # dictionary of key-value pairs representing the attributes of the HTML tag
+        # the HTML tag name (e.g. "p", "a", "h1", etc.)
+        self.tag = tag
+        # the value of the HTML tag (e.g. the text inside a paragraph)
+        self.value = value
+        # list of HTMLNode objects representing the children of this node
+        self.children = children
+        # dictionary of key-value pairs representing the attributes of the HTML tag
+        self.props = props
 
     def to_html(self) -> None:
         raise NotImplementedError()
@@ -43,14 +47,34 @@ class LeafNode(HTMLNode):
     def to_html(self):
         if not self.value:
             raise ValueError("Leafnode's value not set")
-    
+
         if not self.tag:
             return self.value
-        
+
         res = "<" + self.tag
         if self.props:
             res += self.props_to_html()
         res += ">"
         res += self.value
         res += '</' + self.tag + '>'
+        return res
+
+class ParentNode(HTMLNode):
+    def __init__(self,
+                tag: str,
+                children: List[HTMLNode],
+                props: Dict[str, str]=None
+        ) -> None:
+        super().__init__(tag, None, children, props)
+
+    def to_html(self):
+        if not self.tag:
+            raise ValueError('tag was not provided')
+        if not self.children or len(self.children) == 0:
+            raise ValueError('no children in parent node')
+    
+        res = f'<{self.tag}>'
+        for child in self.children:
+            res += child.to_html()
+        res += f'</{self.tag}>'
         return res
