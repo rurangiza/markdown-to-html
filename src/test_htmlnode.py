@@ -65,6 +65,47 @@ class TestParentNode(unittest.TestCase):
         )
         ans = "<p><b>Bold text</b>Normal text<i>italic text</i>Normal text</p>"
         self.assertEqual(node.to_html(), ans)
+    
+    def test_advanced(self):
+        node = ParentNode(
+            'p',
+            [
+                LeafNode("b", "Bold text"),
+                LeafNode(None, "Normal text"),
+                ParentNode('div',
+                           [
+                                LeafNode('i', 'italic '),
+                                LeafNode('None', 'Normal text'),
+                                LeafNode('b', 'Bold text')
+                           ],
+                ),
+                LeafNode("i", "italic text"),
+                LeafNode(None, "Normal text"),
+            ],
+        )
+        ans = "<p><b>Bold text</b>Normal text<i>italic text</i>Normal text</p>"
+        self.assertEqual(node.to_html(), ans)
+
+    def test_advanced(self):
+        node = ParentNode(
+            'p',
+            [
+                LeafNode("b", "Bold text"),
+                LeafNode(None, "Normal text"),
+                ParentNode(
+                    'div',
+                    [
+                        LeafNode('i', 'italic '),
+                        LeafNode('None', 'Normal text'),
+                        LeafNode('b', 'Bold text')
+                    ],
+                ),
+                LeafNode("i", "italic text"),
+                LeafNode(None, "Normal text"),
+            ],
+        )
+        ans = "<p><b>Bold text</b>Normal text<div><i>italic </i><None>Normal text</None><b>Bold text</b></div><i>italic text</i>Normal text</p>"
+        self.assertEqual(node.to_html(), ans)
 
 if __name__ == '__main__':
     unittest.main()
