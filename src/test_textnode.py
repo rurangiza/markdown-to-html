@@ -1,5 +1,6 @@
 import unittest
-from textnode import TextNode, text_node_to_html_node
+from textnode import TextNode
+from textnode import text_node_to_html_node, split_nodes_delimiter
 
 class TestTextNode(unittest.TestCase):
 
@@ -38,6 +39,21 @@ class TestConverter(unittest.TestCase):
             result = e
         expected = 'ValueError: not valid text node'
         self.assertNotEqual(result, expected)
+
+class TestSplitNodesDelimiter(unittest.TestCase):
+
+    def test_basic(self):
+        node = TextNode("This is text with a `code block` word", 'p')
+        lists = split_nodes_delimiter([node], "`", 'p')
+
+        # turn List[List[TextNode]] to a string for checking
+        result = ""
+        for list in lists:
+            for item in list:
+                result += str(item)
+
+        expected = 'TextNode(This is text with a , p, None)TextNode(code block, code, None)TextNode( word, p, None)'
+        self.assertEqual(result, expected)
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,5 +1,8 @@
-# markdown-to-html
-Static Site Generator
+# Static Site Generator
 
-- HTML node: 
-- Lead node: type of HTMLNode that represents a single HTML tag with no children
+
+### To-do:
+- handle 1 level nesting in markdown (i.e: following not supported "*italic and **bold** word*.")
+
+### Maybe
+- handle multiple levels of nesting

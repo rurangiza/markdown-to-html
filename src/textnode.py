@@ -5,6 +5,7 @@ based on markdown and soon to be converted to HTML
 """
 
 from htmlnode import LeafNode
+from typing import List
 
 class TextNode:
     def __init__(self, text: str, text_type: str, url: str=None):
@@ -20,7 +21,6 @@ class TextNode:
     def __repr__(self):
         return f'TextNode({self.text}, {self.text_type}, {self.url})'
 
-    
 def text_node_to_html_node(node: TextNode) -> LeafNode:
     match node.text_type:
         case 'text':
@@ -38,3 +38,32 @@ def text_node_to_html_node(node: TextNode) -> LeafNode:
             })
         case _:
             raise ValueError('not valid text node')
+
+def split_nodes_delimiter( old_nodes: str, delimiter: str, text_type: str) -> List[List[TextNode]]:
+    new_nodes = []
+
+    def get_md_type(syntax: str) -> str:
+        match syntax:
+            case '`':
+                return 'code'
+            case _:
+                return 'text'
+
+    for node in old_nodes:
+        curr = []
+        if not isinstance(node, TextNode):
+            new_nodes.append(node)
+            continue
+        tokens = node.text.split(delimiter)
+        for token in tokens:
+            if len(token) == 0:
+                continue
+            if f' {delimiter}{token}' in node.text:
+                curr.append(TextNode(
+                    token.lstrip(delimiter), get_md_type(delimiter))
+                )
+            else:
+                curr.append(TextNode(token, text_type))
+        new_nodes.append(curr)
+
+    return new_nodes
