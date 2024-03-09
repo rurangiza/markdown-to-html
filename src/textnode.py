@@ -31,8 +31,12 @@ def text_node_to_html_node(node: TextNode) -> LeafNode:
             return LeafNode('i', node.text, None)
         case 'code':
             return LeafNode('code', node.text, None)
+        case 'link':
+            return LeafNode('a', node.text, {
+                'href': node.url
+            })
         case 'image':
-            return LeafNode('img', None, {
+            return LeafNode('img', "", {
                 'src': node.url,
                 'alt': node.text,
             })
@@ -46,16 +50,20 @@ def split_nodes_delimiter( old_nodes: str, delimiter: str, text_type: str) -> Li
         match syntax:
             case '`':
                 return 'code'
+            case '*':
+                return 'italic'
+            case '**':
+                return 'bold'
             case _:
                 return 'text'
 
     for node in old_nodes:
-        curr = []
         if not isinstance(node, TextNode):
             new_nodes.append(node)
             continue
-        if node.text.count(delimiter) % 2 != 0:
+        if node.text.count(delimiter) != 2:
             raise SyntaxError('Invalid markdown: odd number of delimiter symbol')
+        curr = []
         tokens = node.text.split(delimiter)
         for token in tokens:
             if len(token) == 0:

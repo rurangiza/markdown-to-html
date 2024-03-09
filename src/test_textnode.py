@@ -50,13 +50,31 @@ class TestSplitNodesDelimiter(unittest.TestCase):
                 rstr += str(item)
         return rstr
 
-    def test_basic(self):
+    def test_code_inline(self):
         node = TextNode("This is text with a `code block` word", 'p')
         lists = split_nodes_delimiter([node], "`", 'p')
 
         result = self.lists_to_str(lists)
 
         expected = 'TextNode(This is text with a , p, None)TextNode(code block, code, None)TextNode( word, p, None)'
+        self.assertEqual(result, expected)
+
+    def test_bold_inline(self):
+        node = TextNode("This is text with a word in **bold** for exemple", 'p')
+        lists = split_nodes_delimiter([node], "**", 'p')
+
+        result = self.lists_to_str(lists)
+
+        expected = 'TextNode(This is text with a word in , p, None)TextNode(bold, bold, None)TextNode( for exemple, p, None)'
+        self.assertEqual(result, expected)
+    
+    def test_italic_inline(self):
+        node = TextNode("This is text with a word in *italic* for exemple", 'p')
+        lists = split_nodes_delimiter([node], "*", 'p')
+
+        result = self.lists_to_str(lists)
+
+        expected = 'TextNode(This is text with a word in , p, None)TextNode(italic, italic, None)TextNode( for exemple, p, None)'
         self.assertEqual(result, expected)
     
     def test_syntax_err(self):
