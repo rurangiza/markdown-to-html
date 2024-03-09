@@ -54,6 +54,8 @@ def split_nodes_delimiter( old_nodes: str, delimiter: str, text_type: str) -> Li
         if not isinstance(node, TextNode):
             new_nodes.append(node)
             continue
+        if node.text.count(delimiter) % 2 != 0:
+            raise SyntaxError('Invalid markdown: odd number of delimiter symbol')
         tokens = node.text.split(delimiter)
         for token in tokens:
             if len(token) == 0:
