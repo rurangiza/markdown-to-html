@@ -5,7 +5,8 @@ based on markdown and soon to be converted to HTML
 """
 
 from htmlnode import LeafNode
-from typing import List
+from typing import List, Tuple
+import re
 
 class TextNode:
     def __init__(self, text: str, text_type: str, url: str=None):
@@ -77,3 +78,85 @@ def split_nodes_delimiter( old_nodes: str, delimiter: str, text_type: str) -> Li
         new_nodes.append(curr)
 
     return new_nodes
+
+def extract_markdown_images(text: str) -> List[Tuple[str, str]]:
+    return re.findall(r"!\[(.*?)\]\((.*?)\)", text)
+
+def extract_markdown_links(text: str) -> List[Tuple[str, str]]:
+    return re.findall(r"\[(.*?)\]\((.*?)\)", text)
+
+def split_nodes_image(old_nodes: List[TextNode]):  
+    final = []
+
+    for node in old_nodes:
+
+        result = []
+        text = node.text
+        default_type = node.text_type
+        images = extract_markdown_images(text)
+
+        for image in images:
+
+            str = f"![{image[0]}]({image[1]})"
+            chunks = []
+            if len(result) == 0:
+                chunks = text.split(str)
+            else:
+                chunks = result.pop().text.split(str)
+            for i, chunk in enumerate(chunks):
+                if i == 1:
+                    result.append(TextNode(image[0], 'image', image[1]))
+                if len(chunk) > 0:
+                    result.append(TextNode(chunk, default_type))
+
+        final.append(result)
+
+    return final
+
+def split_nodes_link(old_nodes: str) -> List[TextNode]:
+    final = []
+
+    for node in old_nodes:
+
+        result = []
+        text = node.text
+        default_type = node.text_type
+        links = extract_markdown_links(text)
+
+        for link in links:
+
+            str = f"[{link[0]}]({link[1]})"
+            chunks = []
+            if len(result) == 0:
+                chunks = text.split(str)
+            else:
+                chunks = result.pop().text.split(str)
+            for i, chunk in enumerate(chunks):
+                if i == 1:
+                    result.append(TextNode(link[0], 'link', link[1]))
+                if len(chunk) > 0:
+                    result.append(TextNode(chunk, default_type))
+
+        final.append(result)
+
+    return final
+
+node = TextNode(
+    "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png) and another ![second image](https://i.imgur.com/3elNhQu.png)",
+    'p',
+)
+new_nodes = split_nodes_image([node])
+for n in new_nodes:
+    for x in n:
+        print(x)
+
+"""
+[
+    TextNode("This is text with an ", text_type_text),
+    TextNode("image", text_type_image, "https://i.imgur.com/zjjcJKZ.png"),
+    TextNode(" and another ", text_type_text),
+    TextNode(
+        "second image", text_type_image, "https://i.imgur.com/3elNhQu.png"
+    ),
+]
+"""
